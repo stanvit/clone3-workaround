@@ -37,10 +37,17 @@ func xmain() error {
 	if err != nil {
 		return fmt.Errorf("failed to get syscall \"clone3\": %w", err)
 	}
+	faccessat2, err := seccomp.GetSyscallFromName("faccessat2")
+	if err != nil {
+		return fmt.Errorf("failed to get syscall \"faccessat2\": %w", err)
+	}
 	act := seccomp.ActErrno
 	act = act.SetReturnCode(int16(syscall.ENOSYS))
 	if err := filter.AddRule(clone3, act); err != nil {
 		return fmt.Errorf("failed to add action %v for \"clone3\": %w", act, err)
+	}
+	if err := filter.AddRule(faccessat2, act); err != nil {
+		return fmt.Errorf("failed to add action %v for \"faccessat2\": %w", act, err)
 	}
 	if err := filter.Load(); err != nil {
 		return fmt.Errorf("failed to load the seccomp filter: %w", err)
